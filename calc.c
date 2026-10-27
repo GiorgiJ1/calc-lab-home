@@ -1,6 +1,11 @@
 //Giorgi Janikashvili Student ID: 251ADB123
 // Compile with: gcc -O2 -Wall -Wextra -std=c17 -o calc calc.c -lm
-// Resources used: <every AI tool, website and book you used; details in comments where you used them>
+// Resources used: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html , https://www.cppreference.com/c/language/operator_precedence  -- I used this for Member access operations, 
+// AI prompt: ok wazzap gpt, baisically I want you to write a readme for github repo for the project  that contains recursive-descent 
+// arithmetic parser in C supporting operator precedence, exponentiation, parentheses, error reporting, 
+// and file-based expression evaluation. And its name is like Graded lab: Arithmetic Parser in C, make it look cool :)
+// GPT was used for creating the readme file for repository 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -75,6 +80,7 @@ static Value make_float(double n)
 
 static Value parse_expr(Parser *p);
 
+// reads a number from the input and checks the numeric format of it
 static Value parse_number(Parser *p)
 {
     skip_spaces(p);
@@ -125,6 +131,7 @@ static Value parse_number(Parser *p)
     return make_float(n);
 }
 
+// it parses the basic values
 static Value parse_primary(Parser *p)
 {
     skip_spaces(p);
@@ -253,6 +260,7 @@ static Value parse_term(Parser *p)
     return value;
 }
 
+// parses addition and substraction
 static Value parse_expr(Parser *p)
 {
     Value value = parse_term(p);
@@ -286,7 +294,7 @@ static Value parse_expr(Parser *p)
     return value;
 }
 
-static int buffer_reserve(Buffer *b, size_t extra)
+static int buffer_reserve(Buffer *b, size_t extra) // ensourse that the buffer had enough allocated space for extra characters
 {
     if (extra > (size_t)-1 - b->len - 1) {
         return 0;
@@ -323,7 +331,7 @@ static int buffer_append(Buffer *b, const char *s, size_t n)
     return 1;
 }
 
-static char *read_all(FILE *f, size_t *length)
+static char *read_all(FILE *f, size_t *length) // it reads the whole file into the the dynamically allocated memory and return the length of it
 {
     size_t cap = 8192;
     size_t len = 0;
@@ -361,7 +369,7 @@ static char *read_all(FILE *f, size_t *length)
     return data;
 }
 
-static int evaluate_file(const char *path, Buffer *output)
+static int evaluate_file(const char *path, Buffer *output)   // it just evaluates the each expression in file and collect tthe result or even the first error
 {
     FILE *f = fopen(path, "rb");
     if (!f) {
@@ -461,6 +469,7 @@ static int evaluate_file(const char *path, Buffer *output)
     return 1;
 }
 
+// joiun_path joins a directory path and filename into one allocated path strigg
 static char *join_path(const char *a, const char *b)
 {
     size_t na = strlen(a), nb = strlen(b);
@@ -503,6 +512,7 @@ static char *input_base(const char *path)
     return name;
 }
 
+// baisically ensures that there is output directory and if not then creates it
 static int ensure_output_dir(const char *path)
 {
     struct stat st;
@@ -520,6 +530,7 @@ static int ensure_output_dir(const char *path)
     return 1;
 }
 
+// Oh and this function builds the output filename from the input name and student id and so on from one of the first lines
 static char *output_filename(const char *input_path)
 {
     char *base = input_base(input_path);
@@ -535,6 +546,7 @@ static char *output_filename(const char *input_path)
     return name;
 }
 
+// here this function procvesses one input file and write its output file
 static int process_one(const char *input, const char *outdir)
 {
     Buffer output = {0};
@@ -575,6 +587,7 @@ static int has_txt_suffix(const char *name)
     return n >= 4 && strcmp(name + n - 4, ".txt") == 0;
 }
 
+// ok so this finds the txtx files in a directory and processes eacj refular file
 static int process_directory(const char *indir, const char *outdir)
 {
     DIR *dir = opendir(indir);
