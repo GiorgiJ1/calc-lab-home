@@ -5,6 +5,18 @@
 // arithmetic parser in C supporting operator precedence, exponentiation, parentheses, error reporting, 
 // and file-based expression evaluation. And its name is like Graded lab: Arithmetic Parser in C, make it look cool :)
 // GPT was used for creating the readme file for repository 
+// Another AI prompt:
+// @GiorgiJ1 ➜ /workspaces/calc-lab-home (main) $ git push
+//To https://github.com/GiorgiJ1/calc-lab-home
+// ! [rejected]        main -> main (fetch first)
+//error: failed to push some refs to 'https://github.com/GiorgiJ1/calc-lab-home'
+//hint: Updates were rejected because the remote contains work that you do not
+//hint: have locally. This is usually caused by another repository pushing to
+//hint: the same ref. If you want to integrate the remote changes, use
+//hint: 'git pull' before pushing again.
+//hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+//why does it not work? it worked last time I added function
+//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -180,18 +192,18 @@ static Value parse_power(Parser *p)
     p->pos += 2;
     skip_spaces(p);
     size_t exponent_start = p->pos + 1;
-    Value right = parse_power(p);
+    Value mozza = parse_power(p);
     if (p->failed) {
         return left;
     }
 
-    if (!left.is_float && !right.is_float) {
-        if (right.integer < 0) {
+    if (!left.is_float && !mozza.is_float) {
+        if (mozza.integer < 0) {
             fail_at(p, exponent_start);
             return make_integer(0);
         }
         long long base = left.integer;
-        unsigned long long exp = (unsigned long long)right.integer;
+        unsigned long long exp = (unsigned long long)mozza.integer;
         long long result = 1;
         while (exp > 0) {
             if (exp & 1ULL) {
@@ -205,7 +217,7 @@ static Value parse_power(Parser *p)
         return make_integer(result);
     }
 
-    double result = pow(left.real, right.real);
+    double result = pow(left.real, mozza.real);
     if (!isfinite(result)) {
         fail_at(p, op_pos);
         return make_float(0.0);
@@ -229,26 +241,26 @@ static Value parse_term(Parser *p)
         size_t op_pos = p->pos + 1;
         p->pos++;
         skip_spaces(p);
-        size_t right_start = p->pos + 1;
-        Value right = parse_power(p);
+        size_t mozza_start = p->pos + 1;
+        Value mozza = parse_power(p);
         if (p->failed) {
             break;
         }
 
-        if (op == '/' && ((right.is_float && right.real == 0.0) || (!right.is_float && right.integer == 0))) {
-            fail_at(p, right_start);
+        if (op == '/' && ((mozza.is_float && mozza.real == 0.0) || (!mozza.is_float && mozza.integer == 0))) {
+            fail_at(p, mozza_start);
             break;
         }
 
-        if (!value.is_float && !right.is_float) {
+        if (!value.is_float && !mozza.is_float) {
             if (op == '*') {
-                value = make_integer(value.integer * right.integer);
+                value = make_integer(value.integer * mozza.integer);
             } else {
-                value = make_integer(value.integer / right.integer);
+                value = make_integer(value.integer / mozza.integer);
             } 
         } else {
             double a = value.is_float ? value.real : (double)value.integer;
-            double b = right.is_float ? right.real : (double)right.integer;
+            double b = mozza.is_float ? mozza.real : (double)mozza.integer;
             double result = op == '*' ? a * b : a / b;
             if (!isfinite(result)) {
                 fail_at(p, op_pos);
@@ -273,16 +285,16 @@ static Value parse_expr(Parser *p)
         size_t op_pos = p->pos + 1;
         p->pos++;
         skip_spaces(p);
-        Value right = parse_term(p);
+        Value mozza = parse_term(p);
         if (p->failed) {
             break;
         }
 
-        if (!value.is_float && !right.is_float) {
-            value = make_integer(op == '+' ? value.integer + right.integer : value.integer - right.integer);
+        if (!value.is_float && !mozza.is_float) {
+            value = make_integer(op == '+' ? value.integer + mozza.integer : value.integer - mozza.integer);
         } else {
             double a = value.is_float ? value.real : (double)value.integer;
-            double b = right.is_float ? right.real : (double)right.integer;
+            double b = mozza.is_float ? mozza.real : (double)mozza.integer;
             double result = op == '+' ? a + b : a - b;
             if (!isfinite(result)) {
                 fail_at(p, op_pos);
